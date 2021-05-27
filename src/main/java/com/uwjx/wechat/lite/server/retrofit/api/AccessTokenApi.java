@@ -3,7 +3,6 @@ package com.uwjx.wechat.lite.server.retrofit.api;
 import com.uwjx.wechat.lite.server.domain.AccessToken;
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -11,7 +10,7 @@ import retrofit2.http.Query;
  * @link https://huan.uwjx.com
  * @date 2021/5/26 17:53
  */
-public interface WechatLiteAccessTokenApi {
+public interface AccessTokenApi extends BaseApi{
 
     @GET("/cgi-bin/token")
     Call<AccessToken> getToken(@Query("grant_type") String grant_type ,

@@ -1,10 +1,12 @@
 package com.uwjx.wechat.lite.server.retrofit;
 
+import ch.qos.logback.core.util.TimeUtil;
 import com.google.gson.Gson;
 import com.uwjx.wechat.lite.server.common.Constants;
 import com.uwjx.wechat.lite.server.domain.AccessToken;
-import com.uwjx.wechat.lite.server.retrofit.api.WechatLiteAccessTokenApi;
+import com.uwjx.wechat.lite.server.retrofit.api.AccessTokenApi;
 import com.uwjx.wechat.lite.server.service.impl.RedisService;
+import com.uwjx.wechat.lite.server.util.DateUtil;
 import com.uwjx.wechat.lite.server.util.GsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author wanghuan
@@ -26,7 +29,7 @@ import java.io.IOException;
  */
 @Slf4j
 @Service
-public class GetAccessTokenService {
+public class GetAccessTokenService extends BaseRetrofitService {
 
     @Value("${wechat.lite.appId}")
     String appId;
@@ -36,31 +39,29 @@ public class GetAccessTokenService {
     RedisService redisService;
 
     public void refreshAccessToken() {
-        Retrofit retrofitClient = new Retrofit.Builder()
-                .baseUrl("https://api.weixin.qq.com")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        WechatLiteAccessTokenApi service = retrofitClient.create(WechatLiteAccessTokenApi.class);
+        AccessTokenApi service = retrofit.create(AccessTokenApi.class);
         Call<AccessToken> repos = service.getToken("client_credential", appId, appSecret);
         try {
             Response<AccessToken> response = repos.execute();
+            log.warn("结果 body :{}", GsonUtil.toJsonString(response.body()));
             AccessToken accessToken = response.body();
-            accessToken.setExpires_in(System.currentTimeMillis() + accessToken.getExpires_in());
-            redisService.set(Constants.ACCESS_TOKEN_REDIS_KEY , GsonUtil.toJsonString(accessToken));
-            log.warn("结果:{}", GsonUtil.toJsonString(response.body()));
+            accessToken.setExpires_in(DateUtil.currentTimeInMillis() + accessToken.getExpires_in() * 1000);
+            redisService.set(Constants.ACCESS_TOKEN_REDIS_KEY, GsonUtil.toJsonString(accessToken));
+            redisService.expire(Constants.ACCESS_TOKEN_REDIS_KEY, Constants.ACCESS_TOKEN_EXPIRE_TIME);
+            log.warn("结果 accessToken :{}", GsonUtil.toJsonString(accessToken));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public AccessToken getAccessToken(){
+    public AccessToken getAccessToken() {
         boolean isHasKey = redisService.hasKey(Constants.ACCESS_TOKEN_REDIS_KEY);
-        if(isHasKey){
+        if (isHasKey) {
             String redisStr = redisService.get(Constants.ACCESS_TOKEN_REDIS_KEY);
-            if(StringUtils.hasLength(redisStr)){
+            if (StringUtils.hasLength(redisStr)) {
                 Gson gson = new Gson();
-                AccessToken accessToken = gson.fromJson(redisStr , AccessToken.class);
-                if(!ObjectUtils.isEmpty(accessToken)){
+                AccessToken accessToken = gson.fromJson(redisStr, AccessToken.class);
+                if (!ObjectUtils.isEmpty(accessToken)) {
                     return accessToken;
                 }
             }
@@ -68,15 +69,14 @@ public class GetAccessTokenService {
         return null;
     }
 
-    public boolean isTokenExpire(AccessToken accessToken){
-        if(ObjectUtils.isEmpty(accessToken)){
+    public boolean isTokenExpire(AccessToken accessToken) {
+        if (ObjectUtils.isEmpty(accessToken)) {
             return true;
         }
-        long expireAt =  accessToken.getExpires_in();
-        //1622040499053
-        //1622040533626
-        log.warn("currentTimeMillis : {}" , System.currentTimeMillis());
-        log.warn("expireAt : {}" , expireAt);
-        return expireAt <= System.currentTimeMillis();
+        long expireAt = accessToken.getExpires_in();
+        log.warn("currentTimeMillis : {}", DateUtil.currentTimeInMillis());
+        log.warn("expireAt : {}", expireAt);
+        return expireAt <= DateUtil.currentTimeInMillis();
     }
+
 }

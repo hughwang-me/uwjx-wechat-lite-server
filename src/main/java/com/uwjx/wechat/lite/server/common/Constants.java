@@ -8,4 +8,6 @@ package com.uwjx.wechat.lite.server.common;
 public class Constants {
 
     public static final String ACCESS_TOKEN_REDIS_KEY = "wechat_lite_access_token";
+
+    public static final long ACCESS_TOKEN_EXPIRE_TIME = 60 * 60 * 2;
 }
