@@ -28,7 +28,7 @@ public class TestTask {
 
         AccessToken accessToken = new AccessToken();
         accessToken.setAccess_token("aaaaaaaaaaaaa");
-        accessToken.setCode("code....");
+//        accessToken.setCode("code....");
         accessToken.setErrcode(1);
         accessToken.setErrmsg("msgggg");
         String jsonStr = GsonUtil.toJsonString(accessToken);
