@@ -4,7 +4,9 @@ import ch.qos.logback.core.util.TimeUtil;
 import com.google.gson.Gson;
 import com.uwjx.wechat.lite.server.common.Constants;
 import com.uwjx.wechat.lite.server.domain.AccessToken;
+import com.uwjx.wechat.lite.server.domain.SessionKey;
 import com.uwjx.wechat.lite.server.retrofit.api.AccessTokenApi;
+import com.uwjx.wechat.lite.server.retrofit.api.SessionKeyApi;
 import com.uwjx.wechat.lite.server.service.impl.RedisService;
 import com.uwjx.wechat.lite.server.util.DateUtil;
 import com.uwjx.wechat.lite.server.util.GsonUtil;
@@ -29,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-public class GetAccessTokenService extends BaseRetrofitService {
+public class WechatTokenService extends BaseRetrofitService {
 
     @Value("${wechat.lite.appId}")
     String appId;
@@ -77,6 +79,23 @@ public class GetAccessTokenService extends BaseRetrofitService {
         log.warn("currentTimeMillis : {}", DateUtil.currentTimeInMillis());
         log.warn("expireAt : {}", expireAt);
         return expireAt <= DateUtil.currentTimeInMillis();
+    }
+
+    public SessionKey getSessionKey(SessionKey sessionKey){
+        log.warn("请求的 code : {}" , sessionKey.getCode());
+        SessionKeyApi service = retrofit.create(SessionKeyApi.class);
+        Call<SessionKey> repos = service.getSessionKey(sessionKey.getCode() ,
+                "authorization_code", appId, appSecret);
+        try {
+            Response<SessionKey> response = repos.execute();
+            log.warn("结果 body :{}", GsonUtil.toJsonString(response.body()));
+            SessionKey sessionKeyResp = response.body();
+            redisService.set(Constants.SESSION_KEY_REDIS_KEY, GsonUtil.toJsonString(sessionKeyResp));
+            return sessionKeyResp;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

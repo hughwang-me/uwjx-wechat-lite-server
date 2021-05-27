@@ -22,7 +22,9 @@ public class AccessToken {
      * "expires_in":7200,
      * "errcode":0}
      */
-    private String code;
+
+
+
     private String access_token;
     private long expires_in;
     private int errcode;

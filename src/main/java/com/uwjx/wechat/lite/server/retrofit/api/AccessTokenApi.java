@@ -12,7 +12,7 @@ import retrofit2.http.Query;
  */
 public interface AccessTokenApi extends BaseApi{
 
-    @GET("/cgi-bin/token")
+    @GET(GET_ACCESS_TOKEN)
     Call<AccessToken> getToken(@Query("grant_type") String grant_type ,
                                @Query("appId") String appId ,
                                @Query("secret") String secret );

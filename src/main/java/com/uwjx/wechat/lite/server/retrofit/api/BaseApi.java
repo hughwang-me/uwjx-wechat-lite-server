@@ -9,8 +9,8 @@ public interface BaseApi {
 
     String BASE_URL = "https://api.weixin.qq.com";
 
-    String GET_ACCESS_TOKEN = "https://api.weixin.qq.com/cgi-bin/token";
+    String GET_ACCESS_TOKEN = "/cgi-bin/token";
 
-    String JS_CODE_TO_SESSION = "https://api.weixin.qq.com/sns/jscode2session";
+    String JS_CODE_TO_SESSION = "/sns/jscode2session";
 
 }

@@ -2,14 +2,11 @@ package com.uwjx.wechat.lite.server.task;
 
 import com.google.gson.Gson;
 import com.uwjx.wechat.lite.server.domain.AccessToken;
-import com.uwjx.wechat.lite.server.retrofit.GetAccessTokenService;
 import com.uwjx.wechat.lite.server.service.impl.RedisService;
 import com.uwjx.wechat.lite.server.util.GsonUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 /**
  * @author wanghuan

@@ -9,5 +9,7 @@ public class Constants {
 
     public static final String ACCESS_TOKEN_REDIS_KEY = "wechat_lite_access_token";
 
+    public static final String SESSION_KEY_REDIS_KEY = "wechat_lite_session_key";
+
     public static final long ACCESS_TOKEN_EXPIRE_TIME = 60 * 60 * 2;
 }
